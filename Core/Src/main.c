@@ -117,36 +117,42 @@ int main(void)
 	  enum GAME_STATE cur_state = START;
 	  enum SM_MOVE move;
 	  static char score_buf[12] = {0};
+	  uint8_t game_ended = 1;
   while (1)
   {
 	  move = NO_INPUT;
 
-	  if(cur_state == START){
-		  SSD1306_GotoXY (10,10); // goto 10, 10
-		  SSD1306_Puts ("MINI TETRIS", &Font_11x18, 1);
-		  SSD1306_GotoXY (10, 30);
-		  SSD1306_Puts ("STARTS!!", &Font_11x18, 1);
-		  SSD1306_UpdateScreen(); // update screen*/
-		  HAL_Delay (2000);
-		  SSD1306_Clear();
-		  init_game();
-		  cur_state = RUNNING;
-	  }else if(cur_state == RUNNING){
-		  if(last_input_time + input_interval < HAL_GetTick()){
-			  last_input_time = HAL_GetTick();
-			  if(VR[1] > 3900){
-				  move = ROTATE;
-			  }else if(VR[1] < 200){
-				  move = DOWN;
-			  }else if(VR[0] > 3900){
-				  move = LEFT;
-			  }else if(VR[0] < 200){
-				  move = RIGHT;
-			  }
+	  if(last_input_time + input_interval < HAL_GetTick()){
+		  last_input_time = HAL_GetTick();
+		  if(VR[1] > 3900){
+			  move = ROTATE;
+		  }else if(VR[1] < 200){
+			  move = DOWN;
+		  }else if(VR[0] > 3900){
+			  move = LEFT;
+		  }else if(VR[0] < 200){
+			  move = RIGHT;
 		  }
+	  }
+
+	  if(cur_state == START){
+		  if(game_ended){
+			  game_ended = 0;
+			  SSD1306_Clear();
+		  }
+		  SSD1306_GotoXY (10,10); // goto 10, 10
+		  SSD1306_Puts ("MINI", &Font_11x18, 1);
+		  SSD1306_GotoXY (10, 30);
+		  SSD1306_Puts ("TETRIS", &Font_11x18, 1);
+		  SSD1306_UpdateScreen(); // update screen*/
+		  if(move != NO_INPUT){
+			  init_game();
+			  cur_state = RUNNING;
+		  }
+	  }else if(cur_state == RUNNING){
 		  cur_state = game_iteration(move);
-	  }else{
-		  cur_state = START;
+	  }else if(cur_state == LOST){
+		  cur_state = ENDED;
 		  SSD1306_GotoXY (10,10); // goto 10, 10
 		  SSD1306_Puts ("GAME OVER!", &Font_11x18, 1);
 		  SSD1306_UpdateScreen(); // update screen*/
@@ -158,8 +164,10 @@ int main(void)
 		  itoa(get_score(), score_buf, 11);
 		  SSD1306_Puts (score_buf, &Font_11x18, 1);
 		  SSD1306_UpdateScreen(); // update screen*/
-		  HAL_Delay (4000);
-		  SSD1306_Clear();
+	  }else{
+		  if(move != NO_INPUT)
+			  cur_state = START;
+		  game_ended = 1;
 	  }
 
 

@@ -303,8 +303,6 @@ static uint8_t left_blocked(void){
 }
 
 void sm_update(enum SM_MOVE move){
-	//TODO add screen borders
-	// TODO add borders for other existing pixels on the right or the left
 	switch(move){
 		case LEFT:
 			if(!left_blocked())

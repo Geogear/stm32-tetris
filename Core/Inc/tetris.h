@@ -40,7 +40,8 @@ enum SM_MOVE{
 enum GAME_STATE{
 	START = 0,
 	RUNNING = 1,
-	LOST = 2
+	LOST = 2,
+	ENDED = 3,
 };
 
 // Display coords are 128x64, tetris coords are 64x128 so we're just switching the
